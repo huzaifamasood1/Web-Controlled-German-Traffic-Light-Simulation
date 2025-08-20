@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Traffic Light Control</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(to bottom, #87ceeb, #e0f7fa);
+      transition: background 1s ease;
+      position: relative;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    .cloud {
+      position: absolute;
+      top: 50px;
+      background: #fff;
+      border-radius: 50%;
+      width: 120px;
+      height: 60px;
+      opacity: 0.8;
+      box-shadow: 0 0 20px rgba(255,255,255,0.5);
+      animation: cloudsMove 60s linear infinite;
+    }
+    .cloud:nth-child(1) { left: -150px; width: 180px; height: 80px; animation-duration: 80s; top: 80px; }
+    .cloud:nth-child(2) { left: -200px; width: 140px; height: 70px; top: 150px; animation-duration: 100s; }
+    .cloud:nth-child(3) { left: -180px; width: 160px; height: 60px; top: 220px; animation-duration: 90s; }
+
+    @keyframes cloudsMove { 0% {transform: translateX(0);} 100% {transform: translateX(1200px);} }
+
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      width: 2px;
+      height: 2px;
+      opacity: 0;
+      box-shadow:
+        10px 20px white,
+        30px 10px white,
+        50px 25px white,
+        70px 15px white,
+        90px 30px white,
+        110px 20px white,
+        130px 10px white,
+        150px 25px white,
+        170px 15px white,
+        190px 30px white;
+      animation: twinkle 2s infinite alternate;
+    }
+    @keyframes twinkle { from {opacity: 0.2;} to {opacity: 0.8;} }
+
+    .sun, .moon {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      transition: opacity 0.5s ease, box-shadow 0.5s ease;
+      z-index: 0;
+    }
+    .sun {
+      background: radial-gradient(circle at center, #FFD93B 60%, #FFA500 90%);
+      box-shadow: 0 0 20px 5px #FFD93B;
+      opacity: 1;
+    }
+    .moon {
+      background: radial-gradient(circle at center, #F0EDEE 60%, #B0B0B0 90%);
+      box-shadow: 0 0 15px 4px #ccc;
+      opacity: 0;
+    }
+    body.night { background: linear-gradient(to bottom, #000000, #222); }
+    body.night .sun { opacity: 0; }
+    body.night .moon { opacity: 1; }
+    body.night .star { opacity: 1; }
+
+    .traffic-signal-wrapper {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .traffic-signal {
+      width: 100px;
+      height: 300px;
+      background-color: #333;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      position: relative;
+    }
+    .light {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      margin: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .red { background-color: #550000; }
+    .yellow { background-color: #555500; }
+    .green { background-color: #005500; }
+    .light.active.red { background-color: red; }
+    .light.active.yellow { background-color: yellow; }
+    .light.active.green { background-color: green; }
+
+    .pole {
+      width: 20px;
+      height: 150px;
+      background: linear-gradient(to bottom, #555, #222);
+      margin-top: -10px;
+      border-radius: 5px;
+      z-index: 5;
+    }
+    .grass-container {
+      position: absolute;
+      bottom: 40px;
+      width: 140px;
+      height: 40px;
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      z-index: 1;
+    }
+    .grass-blade {
+      width: 4px;
+      height: 100px;
+      background: linear-gradient(to top, #0a0, #4caf50);
+      clip-path: polygon(50% 0%,100% 100%,0% 100%);
+      animation: sway 2s ease-in-out infinite alternate;
+      transform-origin: bottom center;
+    }
+    .grass-blade:nth-child(even) { animation-delay: 1s; }
+    .grass-blade:nth-child(odd) { animation-delay: 0s; }
+    @keyframes sway { 0% {transform: rotate(0deg);} 100% {transform: rotate(10deg);} }
+  </style>
+</head>
+<body>
+  <div class="cloud"></div>
+  <div class="cloud"></div>
+  <div class="cloud"></div>
+  <div class="star" style="top:60px; left:50px;"></div>
+  <div class="star" style="top:100px; left:150px;"></div>
+  <div class="star" style="top:80px; left:250px;"></div>
+  <div class="star" style="top:120px; left:350px;"></div>
+  <div class="star" style="top:70px; left:450px;"></div>
+  <div class="sun"></div>
+  <div class="moon"></div>
+
+  <div class="traffic-signal-wrapper">
+    <div class="traffic-signal">
+      <div class="light red" onclick="changeLight('red')" id="red"></div>
+      <div class="light yellow" onclick="changeLight('yellow')" id="yellow"></div>
+      <div class="light green" onclick="changeLight('green')" id="green"></div>
+    </div>
+    <div class="pole"></div>
+    <div class="grass-container">
+      <div class="grass-blade"></div><div class="grass-blade"></div><div class="grass-blade"></div>
+      <div class="grass-blade"></div><div class="grass-blade"></div><div class="grass-blade"></div>
+      <div class="grass-blade"></div><div class="grass-blade"></div><div class="grass-blade"></div>
+      <div class="grass-blade"></div>
+    </div>
+  </div>
+<script>
+  
+const red = document.getElementById("red");
+const yellow = document.getElementById("yellow");
+const green = document.getElementById("green");
+
+let current = "red";
+let blinkInterval;
+
+function resetUI() {
+  red.classList.remove("active", "red");
+  yellow.classList.remove("active", "yellow");
+  green.classList.remove("active", "green");
+  clearInterval(blinkInterval);
+  document.body.classList.remove("night");
+  fetch("/LED1OFF");
+  fetch("/LED2OFF");
+  fetch("/LED3OFF");
+}
+
+function changeLight(clicked) {
+  if (clicked === current) return;
+
+  if (clicked === "red") {
+    if (current === "yellow") {
+      resetUI();
+      red.classList.add("active", "red");
+      fetch("/LED2ON");
+      current = "red";
+      return;
+    }
+    if (current === "green") {
+      current = "transition";
+      resetUI();
+      green.classList.add("active", "green");
+      fetch("/LED1ON");
+      setTimeout(() => {
+        yellow.classList.add("active", "yellow");
+        fetch("/LED3ON");
+        setTimeout(() => {
+          resetUI();
+          red.classList.add("active", "red");
+          fetch("/LED2ON");
+          current = "red";
+        }, 500);
+      }, 500);
+    }
+  }
+  else if (clicked === "green") {
+    if (current === "yellow") {
+      resetUI();
+      green.classList.add("active", "green");
+      fetch("/LED1ON");
+      current = "green";
+      return;
+    }
+    if (current === "red") {
+      current = "transition";
+      resetUI();
+      red.classList.add("active", "red");
+      fetch("/LED2ON");
+      setTimeout(() => {
+        yellow.classList.add("active", "yellow");
+        fetch("/LED3ON");
+        setTimeout(() => {
+          resetUI();
+          green.classList.add("active", "green");
+          fetch("/LED1ON");
+          current = "green";
+        }, 500);
+      }, 500);
+    }
+  }
+  else if (clicked === "yellow") {
+    resetUI();
+    document.body.classList.add("night");
+    yellow.classList.add("active", "yellow");
+    let isOn = true;
+    blinkInterval = setInterval(() => {
+      yellow.classList.toggle("active");
+      fetch(isOn ? "/LED3OFF" : "/LED3ON");
+      isOn = !isOn;
+    }, 500);
+    current = "yellow";
+  }
+}
+
+</script>
+</body>
+</html>
